@@ -52,4 +52,4 @@ Things to remember before you compile:
 * If you didn't use buttons, change the initialization `bool shuffle = false;` to `bool shuffle = true;`. The code should compile and run properly, but for good practice you should remove all blocks the code says to delete since they reference the `BUTTON` constants.
 
 
-* Git by bartlettmic
+**Git by bartlettmic

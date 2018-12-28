@@ -50,3 +50,6 @@ Things to remember before you compile:
 
 * If you didn't use a potentiometer, don't forget to remove all references to the variable `knob` in the code (ctrl+F will come in handy for that). Otherwise, the program will think you still have a potentiometer that is set to a very low value (i.e. everything will be very dim).
 * If you didn't use buttons, change the initialization `bool shuffle = false;` to `bool shuffle = true;`. The code should compile and run properly, but for good practice you should remove all blocks the code says to delete since they reference the `BUTTON` constants.
+
+
+* Git by bartlettmic

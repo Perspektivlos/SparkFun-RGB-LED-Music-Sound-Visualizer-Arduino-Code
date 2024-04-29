@@ -20,7 +20,6 @@
 #define VISUALS   6   //Change this accordingly if you add/remove a visual in the switch-case in Visualize()
 
 #define AUDIO_PIN A0  //Pin for the envelope of the sound detector
-#define KNOB_PIN  A1  //Pin for the trimpot 10K
 #define BUTTON_1  6   //Button 1 cycles color palettes
 #define BUTTON_2  5   //Button 2 cycles visualization modes
 #define BUTTON_3  4   //Button 3 toggles shuffle mode (automated changing of color and visual)
@@ -47,7 +46,6 @@ uint8_t volume = 0;   //Holds the volume level read from the sound detector.
 uint8_t last = 0;     //Holds the value of volume from the previous loop() pass.
 
 float maxVol = 15;    //Holds the largest volume recorded thus far to proportionally adjust the visual's responsiveness.
-float knob = 1023.0;  //Holds the percentage of how twisted the trimpot is. Used for adjusting the max brightness.
 float avgBump = 0;    //Holds the "average" volume-change to trigger a "bump."
 float avgVol = 0;     //Holds the "average" volume-level to proportionally adjust the visual experience.
 float shuffleTime = 0;  //Holds how many seconds of runtime ago the last shuffle was (if shuffle mode is on).
@@ -102,7 +100,6 @@ void setup() {    //Like it's named, this gets ran before any other function.
 void loop() {  //This is where the magic happens. This loop produces each frame of the visual.
 
   volume = analogRead(AUDIO_PIN);       //Record the volume level from the sound detector
-  knob = analogRead(KNOB_PIN) / 1023.0; //Record how far the trimpot is twisted
 
   //Sets a threshold for volume.
   //  In practice I've found noise can get up to 15, so if it's lower, the visual thinks it's silent.
@@ -244,7 +241,7 @@ void Pulse() {
       uint8_t colors[3];
       float avgCol = 0, avgCol2 = 0;
       for (int k = 0; k < 3; k++) {
-        colors[k] = split(col, k) * damp * knob * pow(volume / maxVol, 2);
+        colors[k] = split(col, k) * damp * pow(volume / maxVol, 2);
         avgCol += colors[k];
         avgCol2 += split(col2, k);
       }
@@ -281,7 +278,7 @@ void PalettePulse() {
       uint8_t colors[3];
       float avgCol = 0, avgCol2 = 0;
       for (int k = 0; k < 3; k++) {
-        colors[k] = split(col, k) * damp * knob * pow(volume / maxVol, 2);
+        colors[k] = split(col, k) * damp * pow(volume / maxVol, 2);
         avgCol += colors[k];
         avgCol2 += split(col2, k);
       }
@@ -346,9 +343,9 @@ void Traffic() {
       //Set the dot to its new position and respective color.
       //  I's old position's color will gradually fade out due to fade(), leaving a trail behind it.
       strand.setPixelColor( pos[i], strand.Color(
-                              float(rgb[i][0]) * pow(volume / maxVol, 2.0) * knob,
-                              float(rgb[i][1]) * pow(volume / maxVol, 2.0) * knob,
-                              float(rgb[i][2]) * pow(volume / maxVol, 2.0) * knob)
+                              float(rgb[i][0]) * pow(volume / maxVol, 2.0),
+                              float(rgb[i][1]) * pow(volume / maxVol, 2.0),
+                              float(rgb[i][2]) * pow(volume / maxVol, 2.0))
                           );
     }
   }
@@ -378,9 +375,9 @@ void Snake() {
 
     //Sets the dot to appropriate color and intensity
     strand.setPixelColor(dotPos, strand.Color(
-                           float(split(col, 0)) * pow(volume / maxVol, 1.5) * knob,
-                           float(split(col, 1)) * pow(volume / maxVol, 1.5) * knob,
-                           float(split(col, 2)) * pow(volume / maxVol, 1.5) * knob)
+                           float(split(col, 0)) * pow(volume / maxVol, 1.5),
+                           float(split(col, 1)) * pow(volume / maxVol, 1.5),
+                           float(split(col, 2)) * pow(volume / maxVol, 1.5))
                         );
 
     //This is where "avgTime" comes into play.
@@ -431,7 +428,6 @@ void PaletteDance() {
                          ));
       sinVal *= sinVal;
       sinVal *= volume / maxVol;
-      sinVal *= knob;
 
       unsigned int val = float(thresholds[palette] + 1)
                          //map takes a value between -LED_TOTAL and +LED_TOTAL and returns one between 0 and LED_TOTAL
@@ -483,9 +479,9 @@ void Glitter() {
 
     //We want the sparkles to be obvious, so we dim the background color.
     strand.setPixelColor(i, strand.Color(
-                           split(col, 0) / 6.0 * knob,
-                           split(col, 1) / 6.0 * knob,
-                           split(col, 2) / 6.0 * knob)
+                           split(col, 0) / 6.0,
+                           split(col, 1) / 6.0,
+                           split(col, 2) / 6.0)
                         );
   }
 
@@ -501,10 +497,10 @@ void Glitter() {
 
     //Draw  sparkle at the random position, with appropriate brightness.
     strand.setPixelColor(dotPos, strand.Color(
-                           255.0 * pow(volume / maxVol, 2.0) * knob,
-                           255.0 * pow(volume / maxVol, 2.0) * knob,
-                           255.0 * pow(volume / maxVol, 2.0) * knob
-                         ));
+                           255.0 * pow(volume / maxVol, 2.0),
+                           255.0 * pow(volume / maxVol, 2.0),
+                           255.0 * pow(volume / maxVol, 2.0))
+                        );
   }
   bleed(dotPos);
   strand.show(); //Show the lights.
@@ -539,7 +535,7 @@ void Paintball() {
     uint8_t colors[3];
 
     //Relates brightness of the color to the relative volume and potentiometer value.
-    for (int i = 0; i < 3; i++) colors[i] = split(col, i) * pow(volume / maxVol, 2.0) * knob;
+    for (int i = 0; i < 3; i++) colors[i] = split(col, i) * pow(volume / maxVol, 2.0);
 
     //Splatters the "paintball" on the random position.
     strand.setPixelColor(dotPos, strand.Color(colors[0], colors[1], colors[2]));
